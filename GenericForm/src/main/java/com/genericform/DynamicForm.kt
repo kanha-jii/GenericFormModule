@@ -7,12 +7,17 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -23,13 +28,18 @@ import androidx.compose.runtime.remember
 import com.genericform.enums.FormFieldInputType
 import com.genericform.models.FormField
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.genericform.enums.FieldType
 import com.genericform.utils.MyDropDownMenuWithTextField
@@ -52,7 +62,8 @@ fun GenericForm(
         Column(
             Modifier
                 .width(IntrinsicSize.Max)
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 20.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             fields.forEach { field ->
@@ -141,7 +152,22 @@ fun GenericForm(
                     }
 
                     // TODO: implement simple custom drop down
-                    FormFieldInputType.CUSTOMDROPDOWN -> {
+                    is FormFieldInputType.CustomDropDown -> {
+                        field.inputType.options
+                    }
+
+                    // TODO: implement simple checkbox upper label code
+                    is FormFieldInputType.CheckBox -> {
+                        CreateCheckBoxes(field.inputType.fieldName,field.inputType.options)
+                    }
+
+                    // TODO: implement simple radio button
+                    is FormFieldInputType.RadioButton -> {
+
+                    }
+
+                    // TODO: implement simple image pick
+                    FormFieldInputType.PICKIMAGE -> {
 
                     }
                 }
@@ -156,7 +182,8 @@ fun GenericForm(
         Column(
             Modifier
                 .width(IntrinsicSize.Max)
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 20.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             fields.forEach { field ->
@@ -246,8 +273,8 @@ fun GenericForm(
                     }
 
                     FormFieldInputType.CUSTOM -> {
-                        Row() {
-                            field.listOfFields.forEach {
+                        Row {
+                            field.listOfFields.forEach { it ->
                                 when (it.inputType) {
                                     FormFieldInputType.TEXT -> {
 
@@ -279,8 +306,25 @@ fun GenericForm(
 
                                     }
 
-                                    // TODO: implement inner outline custom dropdown
-                                    FormFieldInputType.CUSTOMDROPDOWN -> {
+                                    is FormFieldInputType.CustomDropDown -> {
+                                        if(it.inputType.options.isNotEmpty()) {
+                                            MyDropDownMenuWithTextField(options = it.inputType.options,
+                                                textFieldLabel = it.inputType.fieldName, style = field.style)
+                                        }
+                                    }
+
+                                    // TODO: implement inner checkbox upper label code
+                                    is FormFieldInputType.CheckBox -> {
+                                        CreateCheckBoxes(it.inputType.fieldName,it.inputType.options)
+                                    }
+
+                                    // TODO: implement inner radio button
+                                    is FormFieldInputType.RadioButton -> {
+
+                                    }
+
+                                    // TODO: implement inner image pick
+                                    FormFieldInputType.PICKIMAGE -> {
 
                                     }
                                 }
@@ -288,8 +332,25 @@ fun GenericForm(
                         }
                     }
 
-                    // TODO: implement outline custom drop down
-                    FormFieldInputType.CUSTOMDROPDOWN -> {
+                    is FormFieldInputType.CustomDropDown -> {
+                        if(field.inputType.options.isNotEmpty()) {
+                            MyDropDownMenuWithTextField(options = field.inputType.options,
+                                textFieldLabel = field.inputType.fieldName, style = field.style)
+                        }
+                    }
+
+                    // TODO: implement outline checkbox upper label code
+                    is FormFieldInputType.CheckBox -> {
+                        CreateCheckBoxes(field.inputType.fieldName,field.inputType.options)
+                    }
+
+                    // TODO: implement outline radio button upper label code
+                    is FormFieldInputType.RadioButton -> {
+                        CreateRadioButtons(field.inputType.fieldName,field.inputType.options)
+                    }
+
+                    // TODO: implement outline image pick
+                    FormFieldInputType.PICKIMAGE -> {
 
                     }
                 }
@@ -326,5 +387,52 @@ fun DatePickerModal(
         }
     ) {
         DatePicker(state = datePickerState)
+    }
+}
+
+
+@Composable
+fun CreateCheckBoxes(label:String, options:List<String>) {
+    val mutableStateListCheckBox = remember { mutableStateListOf(*Array(options.size){false}) }
+    Column {
+        for (i in options.indices) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(
+                    checked = mutableStateListCheckBox[i],
+                    onCheckedChange = { checked ->
+                        mutableStateListCheckBox[i] = checked
+                    }
+                )
+                Text(text = options[i])
+            }
+        }
+    }
+    println(mutableStateListCheckBox.size)
+}
+
+
+@Composable
+fun CreateRadioButtons(label:String, options:List<String>) {
+    var selectedRadio by remember { mutableStateOf("") }
+    Column {
+        for (i in options.indices) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(
+                    selected = selectedRadio == options[i],
+                    onClick = {
+                        selectedRadio = options[i]
+                    }
+                )
+                ClickableText(text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(color = Color.White)) {
+                        append(options[i])
+                    }
+
+                }, onClick = {
+                    selectedRadio = options[i]
+                })
+            }
+
+        }
     }
 }

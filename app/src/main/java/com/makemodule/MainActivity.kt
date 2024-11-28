@@ -61,8 +61,6 @@ class MainActivity : ComponentActivity() {
                     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                         Spacer(modifier = Modifier.padding(16.dp))
-
-
                         GenericForm(
                             fieldsType = FieldType.OUTLINED,
                             fields = listOf(
@@ -135,8 +133,19 @@ class MainActivity : ComponentActivity() {
                                 ),
                                 FormField("customdropdown",
                                     "Custom Dropdown",
-                                    FormFieldInputType.CUSTOMDROPDOWN,
-                                    TextStyle.Default)
+                                    FormFieldInputType.CustomDropDown("Numbers",listOf("one", "two", "three")),
+                                    TextStyle.Default),
+
+                                FormField("checkbox",
+                                    "Check Box",
+                                    FormFieldInputType.CheckBox("Hobby",listOf("Cricket","Badminton","Tennis")),
+                                    TextStyle.Default),
+
+                                FormField("radio",
+                                    "Radio Button",
+                                    FormFieldInputType.RadioButton("Gender",listOf("Male","Female")),
+                                    TextStyle.Default),
+
                             )
                         ) { data ->
 
