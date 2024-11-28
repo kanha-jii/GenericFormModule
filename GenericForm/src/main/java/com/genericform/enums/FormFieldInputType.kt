@@ -1,0 +1,5 @@
+package com.genericform.enums
+
+enum class FormFieldInputType {
+    TEXT, NUMBER, EMAIL, PASSWORD, DATE, CARDNUMBER, MONTHDROPDOWN, YEARDROPDOWN, CUSTOM, CUSTOMDROPDOWN
+}
