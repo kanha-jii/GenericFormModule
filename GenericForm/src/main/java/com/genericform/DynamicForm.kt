@@ -176,7 +176,9 @@ fun GenericForm(
 
                     }
 
-                    is FormFieldInputType.TextArea -> TODO()
+                    is FormFieldInputType.TextArea -> {
+
+                    }
                 }
             }
 
@@ -378,13 +380,11 @@ fun GenericForm(
                     }
 
                     // TODO: implement outline radio button upper label code
-                    // TODO: implement initial select radio button
                     is FormFieldInputType.RadioButton -> {
                         CreateRadioButtons(field.inputType.fieldName,field.inputType.options,field.inputType.initialSelectedOption)
                     }
 
                     // TODO: implement outline image pick
-                    // TODO: implement initial select image using URI, URL, BITMAP
                     is FormFieldInputType.PickImage-> {
                         val bi = remember { mutableStateOf<Bitmap?>(null) }
                         if(field.inputType.url.isNotEmpty()) {

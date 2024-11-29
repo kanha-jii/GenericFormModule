@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateRectAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -170,7 +171,13 @@ fun LoadImageWithPlaceholder(
 
 @Composable
 fun CreateCheckBoxes(label:String, options:List<String>,initialSelectedOption: String = "") {
-    val mutableStateListCheckBox = remember { mutableStateListOf(*Array(options.size){false}) }
+    val mutableStateListCheckBox = remember {
+        val arr = Array(options.size){false}
+        if(initialSelectedOption.isNotEmpty() && options.contains(initialSelectedOption)) {
+            arr[options.indexOf(initialSelectedOption)] = true
+        }
+        mutableStateListOf(*arr)
+    }
     Column {
         for (i in options.indices) {
             Row(verticalAlignment = Alignment.CenterVertically) {
