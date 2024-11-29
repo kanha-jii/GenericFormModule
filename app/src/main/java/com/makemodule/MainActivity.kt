@@ -58,22 +58,25 @@ class MainActivity : ComponentActivity() {
             MakeModuleTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     println(innerPadding)
-                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
+                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                         Spacer(modifier = Modifier.padding(16.dp))
                         GenericForm(
                             fieldsType = FieldType.OUTLINED,
                             fields = listOf(
+                                FormField("image-pick",
+                                    "Image Picker",
+                                    FormFieldInputType.PickImage("https://i.sstatic.net/YutKo.png"),
+                                    TextStyle.Default),
                                 FormField(
                                     "name",
                                     "name",
-                                    FormFieldInputType.TEXT,
+                                    FormFieldInputType.Text("Hello"),
                                     TextStyle.Default
                                 ),
                                 FormField(
                                     "email",
                                     "email",
-                                    FormFieldInputType.EMAIL,
+                                    FormFieldInputType.Email("kunal@gmail.com"),
                                     TextStyle.Default
                                 ),
                                 FormField(
@@ -97,19 +100,19 @@ class MainActivity : ComponentActivity() {
                                 FormField(
                                     "card",
                                     "Credit Card",
-                                    FormFieldInputType.CARDNUMBER,
+                                    FormFieldInputType.CardNumber("4242424242424242"),
                                     TextStyle.Default
                                 ),
                                 FormField(
                                     "cardMonth",
                                     "Month",
-                                    FormFieldInputType.MONTHDROPDOWN,
+                                    FormFieldInputType.MonthDropDown("Apr"),
                                     TextStyle.Default
                                 ),
                                 FormField(
                                     "cardYear",
                                     "Year",
-                                    FormFieldInputType.YEARDROPDOWN,
+                                    FormFieldInputType.YearDropDown("2022"),
                                     TextStyle.Default,
                                 ),
                                 FormField("custom",
@@ -120,58 +123,54 @@ class MainActivity : ComponentActivity() {
                                         FormField(
                                             "cardMonth",
                                             "Month",
-                                            FormFieldInputType.MONTHDROPDOWN,
+                                            FormFieldInputType.MonthDropDown("Jan"),
                                             TextStyle.Default
                                         ),
                                         FormField(
                                             "cardYear",
                                             "Year",
-                                            FormFieldInputType.YEARDROPDOWN,
+                                            FormFieldInputType.YearDropDown("2024"),
                                             TextStyle.Default,
                                         ),
+                                        FormField("text",
+                                            "Text",
+                                            FormFieldInputType.MonthDropDown("Feb"),
+                                            TextStyle.Default)
                                     )
                                 ),
                                 FormField("customdropdown",
                                     "Custom Dropdown",
-                                    FormFieldInputType.CustomDropDown("Numbers",listOf("one", "two", "three")),
+                                    FormFieldInputType.CustomDropDown("Numbers",listOf("one", "two", "three"), initialSelectedOption = "two"),
                                     TextStyle.Default),
 
                                 FormField("checkbox",
                                     "Check Box",
-                                    FormFieldInputType.CheckBox("Hobby",listOf("Cricket","Badminton","Tennis")),
+                                    FormFieldInputType.CheckBox("Hobby",listOf("Cricket","Badminton","Tennis"), initialSelectedOption = "Cricket"),
                                     TextStyle.Default),
 
                                 FormField("radio",
                                     "Radio Button",
-                                    FormFieldInputType.RadioButton("Gender",listOf("Male","Female")),
+                                    FormFieldInputType.RadioButton("Gender",listOf("Male","Female"), initialSelectedOption = "Male"),
                                     TextStyle.Default),
-
+                                FormField(
+                                    "text-area",
+                                    "Text Area",
+                                    FormFieldInputType.TextArea(),
+                                    TextStyle.Default
+                                ),
+                                FormField(
+                                    "stepper-control",
+                                    "Stepper Control",
+                                    FormFieldInputType.StepperControl(true),
+                                    TextStyle.Default
+                                )
                             )
-                        ) { data ->
+                        ) { data,otherData ->
 
                             println(data)
+                            println(otherData)
                         }
-
-
                         println("hello")
-
-//                        MutableStateMapOfSample()
-
-//                        Button(onClick = { showModal = true }) {
-//                            Text("Show Modal Date Picker")
-//                        }
-
-//                        DatePickerDocked()
-
-//                        if(showModal) {
-//                            DatePickerModal(onDateSelected = {
-//                                println(it)
-//                                showModal = false
-//                            },
-//                                onDismiss = {
-//                                    showModal = false
-//                                })
-//                        }
                     }
                 }
             }
