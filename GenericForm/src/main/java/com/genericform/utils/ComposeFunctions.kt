@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -115,7 +116,8 @@ fun MyDropDownMenuWithTextField(
 fun LoadImageWithPlaceholder(
     bitmap: MutableState<Bitmap?>,
     placeholder: Int,
-    url:String = ""
+    url:String = "",
+    modifier: Modifier
 ) {
     val context = LocalContext.current
 
@@ -128,15 +130,19 @@ fun LoadImageWithPlaceholder(
             val item = context.contentResolver.openInputStream(result)
             bytes = item?.readBytes()
             item?.close()
+
+            bytes?.let {
+                val bos = ByteArrayOutputStream()
+                BitmapFactory.decodeByteArray(it, 0, it.size)
+                    .compress(Bitmap.CompressFormat.JPEG, 50, bos)
+                bitmap.value = BitmapFactory.decodeByteArray(bos.toByteArray(), 0, bos.toByteArray().size)
+            }
         }
     }
-
-
     Box(
-        modifier = Modifier
-            .size(100.dp)
+        modifier = modifier
             .clickable { launcher.launch("image/*") },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         if (bitmap.value != null) {
             Image(
@@ -145,7 +151,7 @@ fun LoadImageWithPlaceholder(
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize().clip(CircleShape)
             )
-        } else {
+        } else if(url.isNotEmpty()) {
             AsyncImage(
                 model = url,
                 contentDescription = "Placeholder Image",
@@ -153,24 +159,28 @@ fun LoadImageWithPlaceholder(
                 modifier = Modifier.fillMaxSize()
             )
         }
+        else {
+            Image(
+                painter = painterResource(id = placeholder),
+                contentDescription = "Placeholder Image",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
     }
+    println("image pick and set")
 
 //        Spacer(modifier = Modifier.height(8.dp))
 //        Button(onClick = { launcher.launch("image/*") }) {
 //            Text(text = "Select Image")
 //        }
 
-    bytes?.let {
-        val bos = ByteArrayOutputStream()
-//        val bmp = BitmapFactory.decodeByteArray(it, 0, it.size)
-//            .compress(Bitmap.CompressFormat.JPEG, 50, bos)
-        bitmap.value = BitmapFactory.decodeByteArray(bos.toByteArray(), 0, bos.toByteArray().size)
-    }
+
 }
 
 
 @Composable
-fun CreateCheckBoxes(label:String, options:List<String>,initialSelectedOption: String = "") {
+fun CreateCheckBoxes(label:String, options:List<String>,initialSelectedOption: String = "",modifier: Modifier) {
     val mutableStateListCheckBox = remember {
         val arr = Array(options.size){false}
         if(initialSelectedOption.isNotEmpty() && options.contains(initialSelectedOption)) {
@@ -185,7 +195,8 @@ fun CreateCheckBoxes(label:String, options:List<String>,initialSelectedOption: S
                     checked = mutableStateListCheckBox[i],
                     onCheckedChange = { checked ->
                         mutableStateListCheckBox[i] = checked
-                    }
+                    },
+                    modifier = modifier
                 )
                 Text(text = options[i])
             }
@@ -196,7 +207,7 @@ fun CreateCheckBoxes(label:String, options:List<String>,initialSelectedOption: S
 
 
 @Composable
-fun CreateRadioButtons(label:String, options:List<String>,initialSelectedOption:String= "") {
+fun CreateRadioButtons(label:String, options:List<String>,initialSelectedOption:String= "",modifier: Modifier) {
     var selectedRadio by remember { mutableStateOf(initialSelectedOption) }
     Column {
         for (i in options.indices) {
@@ -205,7 +216,8 @@ fun CreateRadioButtons(label:String, options:List<String>,initialSelectedOption:
                     selected = selectedRadio == options[i],
                     onClick = {
                         selectedRadio = options[i]
-                    }
+                    },
+                    modifier = modifier
                 )
                 ClickableText(text = buildAnnotatedString {
                     withStyle(style = SpanStyle(color = Color.White)) {
