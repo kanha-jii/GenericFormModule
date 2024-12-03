@@ -50,7 +50,13 @@ fun GenericForm(
 
     if(fields.isEmpty()) return
 
-    val formMapData = remember { mutableStateMapOf<String, TextFieldValue>() }
+    val formMapData = remember {
+
+        val stateMap = mutableStateMapOf<String, TextFieldValue>()
+
+        return@remember stateMap
+
+    }
     val storeOtherData = mutableMapOf<String, String>()
 
     if(fieldsType == FieldType.SIMPLE) {
@@ -76,7 +82,7 @@ fun GenericForm(
                         )
                     }
 
-                    FormFieldInputType.NUMBER -> TextField(
+                    is FormFieldInputType.Number -> TextField(
                         value = formMapData[field.name] ?: TextFieldValue(""),
                         onValueChange = {
                             formMapData[field.name] = it
@@ -99,7 +105,7 @@ fun GenericForm(
                         )
                     }
 
-                    FormFieldInputType.PASSWORD -> {
+                    is FormFieldInputType.Password -> {
                         TextField(
                             value = formMapData[field.name] ?: TextFieldValue(""),
                             onValueChange = {
@@ -111,7 +117,7 @@ fun GenericForm(
                         )
                     }
                     // TODO: have to correct date picker
-                    FormFieldInputType.DATE -> {
+                    is FormFieldInputType.Date -> {
                         Row {
                             Button(onClick = {
                                 showModal = true
@@ -147,7 +153,7 @@ fun GenericForm(
                     }
 
                     // TODO: have to code custom field in non outline
-                    FormFieldInputType.CUSTOM -> {
+                    is FormFieldInputType.Custom -> {
 
                     }
 
@@ -158,7 +164,7 @@ fun GenericForm(
 
                     // TODO: implement simple checkbox upper label code
                     is FormFieldInputType.CheckBox -> {
-                        CreateCheckBoxes(field.inputType.fieldName,field.inputType.options)
+                        CreateCheckBoxes(field.inputType.fieldName,field.inputType.options, modifier = field.inputType.modifier)
                     }
 
                     // TODO: implement simple radio button
@@ -198,7 +204,6 @@ fun GenericForm(
             fields.forEach { field ->
                 when (field.inputType) {
                     is FormFieldInputType.Text -> {
-
                         OutlinedTextField(
                             value = formMapData[field.name] ?: TextFieldValue(field.inputType.text),
                             onValueChange = {
@@ -206,17 +211,17 @@ fun GenericForm(
                             },
                             label = { Text(field.label) },
                             textStyle = field.style,
-                            modifier = Modifier.width(IntrinsicSize.Max)
+                            modifier = field.inputType.modifier
                         )
                     }
-                    FormFieldInputType.NUMBER -> {
+                    is FormFieldInputType.Number -> {
                         OutlinedTextField(value = formMapData[field.name] ?: TextFieldValue(""),
                             onValueChange = {
                                 formMapData[field.name] = it
                             },
                             label = { Text(field.label) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.width(IntrinsicSize.Max)
+                            modifier = field.inputType.modifier
                         )
                     }
                     is FormFieldInputType.Email -> {
@@ -237,12 +242,11 @@ fun GenericForm(
                             },
                             isError = !isEmailValid,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                            modifier = Modifier.width(IntrinsicSize.Max)
+                            modifier = field.inputType.modifier
                         )
                     }
 
-
-                    FormFieldInputType.PASSWORD -> {
+                    is FormFieldInputType.Password -> {
                         OutlinedTextField(value = formMapData[field.name] ?: TextFieldValue(""),
                             onValueChange = {
                                 formMapData[field.name] = it
@@ -250,14 +254,14 @@ fun GenericForm(
                             label = { Text(field.label) },
                             visualTransformation = PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                            modifier = Modifier.width(IntrinsicSize.Max),
+                            modifier = field.inputType.modifier,
                             maxLines = 1,
 
                         )
                     }
 
                     // TODO: implement date text field
-                    FormFieldInputType.DATE -> {
+                    is FormFieldInputType.Date -> {
 
                     }
 
@@ -270,7 +274,8 @@ fun GenericForm(
                             visualTransformation = {
                                 creditCardFilter(it)
                             },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = field.inputType.modifier
                         )
                     }
 
@@ -279,7 +284,8 @@ fun GenericForm(
                             textFieldLabel = "Month", style = field.style, onValueChange = {
                                 storeOtherData[field.name] = it
                             },
-                            initialSelectValue = field.inputType.initialSelectedMonth)
+                            initialSelectValue = field.inputType.initialSelectedMonth,
+                            modifier = field.inputType.modifier)
                     }
 
                     is FormFieldInputType.YearDropDown -> {
@@ -287,73 +293,71 @@ fun GenericForm(
                             textFieldLabel = "Year", style = field.style, onValueChange = {
                                 storeOtherData[field.name] = it
                             },
-                            initialSelectValue = field.inputType.initialSelectedYear)
+                            initialSelectValue = field.inputType.initialSelectedYear,
+                            modifier = field.inputType.modifier)
                     }
 
-                    FormFieldInputType.CUSTOM -> {
-                        Row {
+                    is FormFieldInputType.Custom -> {
+                        Row(modifier = field.inputType.modifier) {
                             field.listOfFields.forEach {
                                 when (it.inputType) {
                                     is FormFieldInputType.Text -> {
                                     }
-                                    FormFieldInputType.NUMBER -> {
+                                    is FormFieldInputType.Number -> {
                                     }
                                     is FormFieldInputType.Email -> {
                                     }
-                                    FormFieldInputType.PASSWORD -> {
+                                    is FormFieldInputType.Password -> {
                                     }
-                                    FormFieldInputType.DATE -> {
+                                    is FormFieldInputType.Date -> {
                                     }
                                     is FormFieldInputType.CardNumber -> {
                                     }
                                     is FormFieldInputType.MonthDropDown -> {
                                         MyDropDownMenuWithTextField(options = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"),
-                                            textFieldLabel = "Month", style = field.style, modifier = Modifier.weight(1f), onValueChange = { selectedOption ->
+                                            textFieldLabel = "Month", style = field.style, modifier = it.inputType.modifier.weight(1f), onValueChange = { selectedOption ->
                                                 storeOtherData[field.name] = selectedOption
                                             },
                                             initialSelectValue = it.inputType.initialSelectedMonth)
                                     }
                                     is FormFieldInputType.YearDropDown -> {
                                         MyDropDownMenuWithTextField(options = listOf("2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030"),
-                                            textFieldLabel = "Year", style = field.style, modifier = Modifier.weight(1f), onValueChange = { selectedOption ->
+                                            textFieldLabel = "Year", style = field.style, modifier = it.inputType.modifier.weight(1f), onValueChange = { selectedOption ->
                                                 storeOtherData[field.name] = selectedOption
                                             },
                                             initialSelectValue = it.inputType.initialSelectedYear)
                                     }
 
                                     // should not be implemented
-                                    FormFieldInputType.CUSTOM -> {
+                                    is FormFieldInputType.Custom -> {
                                     }
 
                                     is FormFieldInputType.CustomDropDown -> {
                                         if(it.inputType.options.isNotEmpty()) {
-                                            MyDropDownMenuWithTextField(options = it.inputType.options,
-                                                textFieldLabel = it.inputType.fieldName, style = field.style, onValueChange = {
-                                                    storeOtherData[field.name] = it
+                                            MyDropDownMenuWithTextField(
+                                                options = it.inputType.options,
+                                                textFieldLabel = it.inputType.fieldName, style = field.style, onValueChange = { changedValue ->
+                                                    storeOtherData[field.name] = changedValue
                                                 },
                                                 initialSelectValue = it.inputType.initialSelectedOption)
-
                                         }
                                     }
 
                                     // TODO: implement inner checkbox upper label code
                                     is FormFieldInputType.CheckBox -> {
-                                        CreateCheckBoxes(it.inputType.fieldName,it.inputType.options)
+                                        CreateCheckBoxes(it.inputType.fieldName,it.inputType.options, modifier = it.inputType.modifier)
                                     }
 
                                     // TODO: implement inner radio button
                                     is FormFieldInputType.RadioButton -> {
-
                                     }
 
                                     // TODO: implement inner image pick
                                     is FormFieldInputType.PickImage -> {
-
                                     }
 
                                     // TODO: implement inner text area
                                     is FormFieldInputType.TextArea -> {
-
                                     }
 
                                     is FormFieldInputType.StepperControl -> {
@@ -363,40 +367,40 @@ fun GenericForm(
                         }
                     }
 
-                    // TODO: have to implement initial select
                     is FormFieldInputType.CustomDropDown -> {
                         if(field.inputType.options.isNotEmpty()) {
                             MyDropDownMenuWithTextField(options = field.inputType.options,
                                 textFieldLabel = field.inputType.fieldName, style = field.style, onValueChange = {
                                     storeOtherData[field.name] = it
-                                })
+                                },
+                                initialSelectValue = field.inputType.initialSelectedOption)
                         }
                     }
 
                     // TODO: implement outline checkbox upper label code
-                    // TODO: implement initial select checkbox
                     is FormFieldInputType.CheckBox -> {
-                        CreateCheckBoxes(field.inputType.fieldName,field.inputType.options,field.inputType.initialSelectedOption)
+                        CreateCheckBoxes(field.inputType.fieldName,field.inputType.options,field.inputType.initialSelectedOption, modifier = field.inputType.modifier)
                     }
 
                     // TODO: implement outline radio button upper label code
                     is FormFieldInputType.RadioButton -> {
-                        CreateRadioButtons(field.inputType.fieldName,field.inputType.options,field.inputType.initialSelectedOption)
+                        CreateRadioButtons(field.inputType.fieldName,field.inputType.options,field.inputType.initialSelectedOption, modifier = field.inputType.modifier)
                     }
 
                     // TODO: implement outline image pick
                     is FormFieldInputType.PickImage-> {
                         val bi = remember { mutableStateOf<Bitmap?>(null) }
                         if(field.inputType.url.isNotEmpty()) {
-                            LoadImageWithPlaceholder(bi,R.drawable.baseline_image_24,field.inputType.url)
+                            LoadImageWithPlaceholder(bi,R.drawable.baseline_image_24,field.inputType.url, modifier = field.inputType.modifier)
+                        }
+                        else if(field.inputType.placeHolder != null) {
+                            LoadImageWithPlaceholder(bi,field.inputType.placeHolder, modifier = field.inputType.modifier)
                         }
                         else {
-                            LoadImageWithPlaceholder(bi,R.drawable.baseline_image_24)
+                            LoadImageWithPlaceholder(bi,R.drawable.baseline_image_24, modifier = field.inputType.modifier)
                         }
-
                     }
 
-                    // TODO: implement initial text
                     is FormFieldInputType.TextArea -> {
                         var text by remember { mutableStateOf(field.inputType.textAreaText) }
                         val charLimit = 200
@@ -405,7 +409,8 @@ fun GenericForm(
                             onValueChange = {
                                 text = it
                             },
-                            charLimit = charLimit
+                            charLimit = charLimit,
+                            modifier = field.inputType.modifier
                         )
                     }
 
@@ -413,7 +418,6 @@ fun GenericForm(
                     is FormFieldInputType.StepperControl -> {
                         val stepper = remember { mutableIntStateOf(0) }
                         LoadStepper(stepper)
-
                     }
                 }
             }
@@ -429,6 +433,3 @@ fun GenericForm(
 
 
 // other useful functions
-
-
-
